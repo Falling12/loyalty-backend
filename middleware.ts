@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
             }
 
             // Verify session through API route instead of direct Prisma access
-            const sessionResponse = await fetch(new URL('/api/auth/get-session', request.url), {
+            const sessionResponse = await fetch(new URL('https://backend.scsanad.hu/api/auth/get-session', request.url), {
                 headers: {
                     cookie: `better-auth.session_token=${authCookie.value}`
                 }
