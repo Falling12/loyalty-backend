@@ -6,8 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
-  },
+    "lint": "next lint",
+    "postinstall": "prisma generate"
+  }, 
   "dependencies": {
     "@better-auth/expo": "^1.1.18",
     "@googlemaps/js-api-loader": "^1.16.8",
