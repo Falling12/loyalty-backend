@@ -28,6 +28,21 @@ type Props = {
     params: Promise<{ userId: string }>
 }
 
+export const dynamicParams = true
+export const revalidate = 60
+
+export async function generateStaticParams() {
+    const users = await prisma.user.findMany({
+        select: {
+            id: true
+        }
+    })
+
+    return users.map(user => ({
+        userId: user.id
+    }))
+}
+
 const UserInfo = async ({ params }: Props) => {
     const userId = (await params).userId
 

@@ -3,17 +3,33 @@ import Link from 'next/link'
 import { Plus, ArrowLeft } from 'lucide-react'
 import { Button } from '@/app/components/ui/button'
 import { format } from 'date-fns'
+import { Pagination } from '@/app/components/ui/pagination/pagination'
 
-export default async function ReservationsPage() {
-  const reservations = await prisma.reservation.findMany({
-    include: {
-      user: true,
-      restaurant: true
-    },
-    orderBy: {
-      date: 'desc'
-    }
-  })
+export default async function ReservationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const page = Number((await searchParams).page) || 1
+  const pageSize = 10
+  const skip = (page - 1) * pageSize
+
+  const [reservations, total] = await Promise.all([
+    prisma.reservation.findMany({
+      include: {
+        user: true,
+        restaurant: true
+      },
+      orderBy: {
+        date: 'desc'
+      },
+      skip,
+      take: pageSize,
+    }),
+    prisma.reservation.count()
+  ])
+
+  const totalPages = Math.ceil(total / pageSize)
 
   return (
     <div className="min-h-screen bg-gray-800 p-6">
@@ -102,6 +118,7 @@ export default async function ReservationsPage() {
           </table>
         </div>
       </div>
+      <Pagination currentPage={page} totalPages={totalPages} />
     </div>
   )
 }

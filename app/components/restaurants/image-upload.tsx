@@ -82,6 +82,8 @@ export function ImageUpload({ maxImages, initialImages = [], onChange }: ImageUp
               src={url}
               alt={`Upload preview ${index + 1}`}
               className="w-full h-full object-cover rounded-lg"
+              width={200}
+              height={200}
             />
             <button
               type="button"

@@ -4,6 +4,19 @@ import { ArrowLeft, Edit, MapPin, Clock, Phone, ChefHat, Users } from 'lucide-re
 import { RestaurantMap } from '../../components/restaurant-map'
 import Image from 'next/image'
 
+export const dynamicParams = true
+export const revalidate = 60
+
+export async function generateStaticParams() {
+  const restaurants = await prisma.restaurant.findMany({
+    select: { id: true }
+  })
+
+  return restaurants.map(restaurant => ({
+    id: restaurant.id
+  }))
+}
+
 export default async function RestaurantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id
   const restaurant = await prisma.restaurant.findUnique({

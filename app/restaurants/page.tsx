@@ -48,6 +48,8 @@ export default async function RestaurantsPage() {
                                     src={restaurant.images[0].url}
                                     alt={restaurant.images[0].alt || restaurant.name}
                                     className="w-full h-full object-cover"
+                                    width={500}
+                                    height={200}
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-blue-900/20">
