@@ -1,0 +1,27 @@
+{
+    "formatVersion": 1,
+    "passTypeIdentifier": "pass.com.uprive.swapp",
+    "serialNumber": "3232311",
+    "teamIdentifier": "AWK5ZJPJG6",
+    "organizationName": "Uprive Design",
+    "description": "Loyalty Card",
+    "type": "storeCard",
+    "storeCard": {
+      "primaryFields": [{
+        "key": "balance",
+        "label": "POINTS",
+        "value": "0 points"
+      }],
+      "secondaryFields": [{
+        "key": "name",
+        "label": "MEMBER",
+        "value": "Name"
+      }],
+      "auxiliaryFields": [{
+        "key": "memberId",
+        "label": "MEMBER ID",
+        "value": "0000"
+      }]
+    }
+  }
+  

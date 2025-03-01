@@ -1,0 +1,196 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+
+  role     String?
+  userRole String[]
+
+  directusId String?
+
+  balance      Float         @default(0)
+  passId       String?       @db.Text
+  qrCodes      QRCode[]
+  transactions Transaction[]
+
+  // New profile fields
+  displayName String?
+  bio         String? @db.Text
+  phoneNumber String?
+  location    String?
+
+  reservations Reservation[]
+  activityLogs ActivityLog[]
+
+  @@unique([email])
+  @@unique([directusId])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model QRCode {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code      String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  adminId   String? // Add this field
+
+  @@map("qr_code")
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Float
+  type      String // "ADD" or "REMOVE"
+  adminId   String
+  createdAt DateTime @default(now())
+
+  @@map("transaction")
+}
+
+model Restaurant {
+  id          String            @id @default(cuid())
+  name        String
+  address     String
+  longitude   Float             @default(0)
+  latitude    Float             @default(0)
+  description String?           @db.Text
+  cuisine     String?
+  phone       String?
+  openTime    String
+  closeTime   String
+  images      RestaurantImage[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Add these new fields
+  tables       Int @default(1) // Total number of tables
+  maxPartySize Int @default(4) // Maximum party size per table
+
+  reservations Reservation[]
+
+  @@map("restaurant")
+}
+
+model RestaurantImage {
+  id           String     @id @default(cuid())
+  url          String
+  alt          String?
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  isPrimary    Boolean    @default(false)
+  order        Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@map("restaurant_image")
+}
+
+model Reservation {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  date         DateTime
+  time         String
+  partySize    Int
+  status       String     @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Remove or modify the unique constraint if it exists
+  // Instead of a unique constraint, we use application-level validation
+  @@index([userId, restaurantId, date])
+  // Add this new index for time-based collision detection
+  @@index([restaurantId, date, time, status])
+  @@map("reservation")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String
+  details   String   @db.Text
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@map("activity_log")
+}
