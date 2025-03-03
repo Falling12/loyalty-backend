@@ -38,8 +38,8 @@ export function SettingsForm({ initialAppIconUrl, initialBackgroundImageUrl, onS
     try {
       onSubmit({appIconUrl, backgroundImageUrl});
       setSuccess('Settings updated successfully');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       setError('Failed to update settings');
     } finally {
       setLoading(false);
