@@ -1,8 +1,7 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Users, UtensilsCrossed, Activity, Factory } from "lucide-react";
-import { getDashboardData } from "@/app/actions/dashboard";
+import { Users, Activity, Factory, Settings } from "lucide-react";
 
 export default async function Home() {
     const session = await auth.api.getSession({
@@ -38,6 +37,13 @@ export default async function Home() {
             icon: Activity,
             href: "/activity",
             color: "purple"
+        },
+        {
+            title: "Settings",
+            description: "Configure system settings and preferences",
+            icon: Settings,
+            href: "/settings",
+            color: "orange"
         }
     ]
 
