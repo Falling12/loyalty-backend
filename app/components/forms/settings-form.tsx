@@ -22,7 +22,7 @@ export function SettingsForm({ initialAppIconUrl, initialBackgroundImageUrl, onS
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+  const { handleSubmit, setValue, formState: { errors } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       appIconUrl: initialAppIconUrl,
@@ -38,6 +38,7 @@ export function SettingsForm({ initialAppIconUrl, initialBackgroundImageUrl, onS
     try {
       onSubmit({appIconUrl, backgroundImageUrl});
       setSuccess('Settings updated successfully');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error) {
       setError('Failed to update settings');
     } finally {

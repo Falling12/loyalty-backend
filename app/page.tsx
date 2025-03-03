@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Users, Activity, Factory, Settings } from "lucide-react";
+import LogoutButton from "./components/dashboard/logoutbutton";
 
 export default async function Home() {
     const session = await auth.api.getSession({
@@ -12,6 +13,8 @@ export default async function Home() {
         return (
             <div className="flex items-center justify-center min-h-[400px] bg-gray-900 rounded-lg">
                 <p className="text-gray-400">Not authenticated</p>
+                
+                <LogoutButton />
             </div>
         )
     }
@@ -49,11 +52,15 @@ export default async function Home() {
 
     return (
         <div className="p-6 bg-gray-800 rounded-lg shadow-sm min-h-screen flex flex-col gap-10">
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-100">
-                    Welcome, <span className="text-blue-400">{session.user.name}</span>
-                </h1>
-                <p className="text-gray-400 mt-2">Select a section to manage</p>
+            <div className="mb-8 flex items-center justify-between">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-2xl font-bold text-gray-100">
+                        Welcome, <span className="text-blue-400">{session.user.name}</span>
+                    </h1>
+                    <p className="text-gray-400 mt-2">Select a section to manage</p>
+                </div>
+
+                <LogoutButton />
             </div>
 
 

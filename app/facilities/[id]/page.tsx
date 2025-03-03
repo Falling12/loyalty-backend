@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/auth'
 import Link from 'next/link'
-import { ArrowLeft, Edit, MapPin, Clock, Phone, ChefHat, Users } from 'lucide-react'
+import { ArrowLeft, Edit, MapPin, Clock, Phone } from 'lucide-react'
 import { RestaurantMap } from '../../components/facility-map'
 import Image from 'next/image'
 
