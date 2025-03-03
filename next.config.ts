@@ -5,9 +5,9 @@ const nextConfig: NextConfig = {
     esmExternals: true
   },
   
-  // Add images configuration
+  // Add images configuration with production domain
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'backend.scsanad.hu'],
     remotePatterns: [
       {
         protocol: 'http',
@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/uploads/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'backend.scsanad.hu',
+        port: '',
+        pathname: '/uploads/**',
+      }
     ],
   },
   
