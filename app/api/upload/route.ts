@@ -1,4 +1,4 @@
-import { unlink } from 'fs'
+import { unlink, existsSync, mkdirSync } from 'fs'
 import { writeFile } from 'fs/promises'
 import { NextRequest } from 'next/server'
 import path from 'path'
@@ -21,6 +21,15 @@ function slugifyFilename(filename: string): string {
   return `${slugified}${extension}`;
 }
 
+// Ensure upload directory exists
+function ensureUploadDirExists() {
+  const uploadDir = path.join(process.cwd(), 'public/uploads')
+  if (!existsSync(uploadDir)) {
+    mkdirSync(uploadDir, { recursive: true })
+  }
+  return uploadDir
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
@@ -38,8 +47,8 @@ export async function POST(request: NextRequest) {
     const slugifiedFilename = slugifyFilename(file.name)
     const filename = `${uniqueSuffix}-${slugifiedFilename}`
     
-    // Save to public/uploads directory
-    const uploadDir = path.join(process.cwd(), 'public/uploads')
+    // Ensure the upload directory exists
+    const uploadDir = ensureUploadDirExists()
     const filePath = path.join(uploadDir, filename)
     
     await writeFile(filePath, buffer)
@@ -47,7 +56,8 @@ export async function POST(request: NextRequest) {
     return new Response(JSON.stringify({ 
       url: `/uploads/${filename}` 
     }), { 
-      status: 200 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
     })
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
