@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
 import { Button } from '../ui/button'
-import { ImageUpload } from '../restaurants/image-upload'
-import { Restaurant, RestaurantImage } from '@prisma/client'
+import { ImageUpload } from '../facilities/image-upload'
+import { Facility, FacilityImage } from '@prisma/client'
 
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -36,28 +36,25 @@ const formSchema = schema.extend({
 export type FormInputData = z.infer<typeof formSchema>
 export type FormOutputData = z.infer<typeof schema> & { images: string[] }
 
-type RestaurantFormProps = {
-  restaurant?: Restaurant & { images: RestaurantImage[] }
+type FacilityFormProps = {
+  facility?: Facility & { images: FacilityImage[] }
   onSubmit: (data: FormOutputData) => Promise<void>
 }
 
-export function RestaurantForm({ restaurant, onSubmit }: RestaurantFormProps) {
-  const [images, setImages] = useState<string[]>(restaurant?.images?.map(img => img.url) || [])
+export function FacilityForm({ facility, onSubmit }: FacilityFormProps) {
+  const [images, setImages] = useState<string[]>(facility?.images?.map(img => img.url) || [])
   const [error, setError] = useState('')
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormInputData>({
     resolver: zodResolver(formSchema),
-    defaultValues: restaurant ? {
-      name: restaurant.name,
-      address: restaurant.address,
-      description: restaurant.description || '',
-      cuisine: restaurant.cuisine || '',
-      phone: restaurant.phone || '',
-      openTime: restaurant.openTime,
-      closeTime: restaurant.closeTime,
-      tables: restaurant.tables,
-      maxPartySize: restaurant.maxPartySize,
-      latitude: restaurant.latitude ? String(restaurant.latitude) : '',
-      longitude: restaurant.longitude ? String(restaurant.longitude) : '',
+    defaultValues: facility ? {
+      name: facility.name,
+      address: facility.address,
+      description: facility.description || '',
+      phone: facility.phone || '',
+      openTime: facility.openTime,
+      closeTime: facility.closeTime,
+      latitude: facility.latitude ? String(facility.latitude) : '',
+      longitude: facility.longitude ? String(facility.longitude) : '',
     } : {
       tables: 1,
       maxPartySize: 4,
@@ -70,15 +67,15 @@ export function RestaurantForm({ restaurant, onSubmit }: RestaurantFormProps) {
     try {
       // Parse the schema to transform string inputs to the proper types
       const parsedData = schema.parse(data);
-      
+
       // Include images in the submission
       await onSubmit({
         ...parsedData,
         images
       });
-      
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_error) { 
+    } catch (_error) {
       setError('Failed to save restaurant');
     }
   }
@@ -122,27 +119,17 @@ export function RestaurantForm({ restaurant, onSubmit }: RestaurantFormProps) {
         />
       </div>
 
+      <div>
+        <label htmlFor="phone" className="block text-sm font-medium text-gray-400 mb-2">
+          Phone
+        </label>
+        <input
+          {...register('phone')}
+          className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-gray-100"
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label htmlFor="cuisine" className="block text-sm font-medium text-gray-400 mb-2">
-            Cuisine
-          </label>
-          <input
-            {...register('cuisine')}
-            className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-gray-100"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="phone" className="block text-sm font-medium text-gray-400 mb-2">
-            Phone
-          </label>
-          <input
-            {...register('phone')}
-            className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-gray-100"
-          />
-        </div>
-
         <div>
           <label htmlFor="openTime" className="block text-sm font-medium text-gray-400 mb-2">
             Opening Time
@@ -166,38 +153,6 @@ export function RestaurantForm({ restaurant, onSubmit }: RestaurantFormProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label htmlFor="tables" className="block text-sm font-medium text-gray-400 mb-2">
-            Number of Tables
-          </label>
-          <input
-            type="number"
-            {...register('tables', { valueAsNumber: true })}
-            min="1"
-            className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-gray-100"
-          />
-          {errors.tables && (
-            <p className="text-sm text-red-500 mt-1">{errors.tables.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="maxPartySize" className="block text-sm font-medium text-gray-400 mb-2">
-            Max Party Size per Table
-          </label>
-          <input
-            type="number"
-            {...register('maxPartySize', { valueAsNumber: true })}
-            min="1"
-            className="w-full bg-gray-800 border border-gray-700 rounded-md px-4 py-2 text-gray-100"
-          />
-          {errors.maxPartySize && (
-            <p className="text-sm text-red-500 mt-1">{errors.maxPartySize.message}</p>
-          )}
-        </div>
-      </div>
-      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label htmlFor="latitude" className="block text-sm font-medium text-gray-400 mb-2">
@@ -234,7 +189,7 @@ export function RestaurantForm({ restaurant, onSubmit }: RestaurantFormProps) {
         <label className="block text-sm font-medium text-gray-400 mb-2">
           Images
         </label>
-        <ImageUpload 
+        <ImageUpload
           maxImages={5}
           initialImages={images}
           onChange={setImages} // Add onChange handler
@@ -246,7 +201,7 @@ export function RestaurantForm({ restaurant, onSubmit }: RestaurantFormProps) {
       )}
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? 'Saving...' : restaurant ? 'Update Restaurant' : 'Create Restaurant'}
+        {isSubmitting ? 'Saving...' : facility ? 'Update Facility' : 'Create Facility'}
       </Button>
     </form>
   )

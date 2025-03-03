@@ -44,7 +44,6 @@ model User {
   phoneNumber String?
   location    String?
 
-  reservations Reservation[]
   activityLogs ActivityLog[]
 
   @@unique([email])
@@ -124,63 +123,35 @@ model Transaction {
   @@map("transaction")
 }
 
-model Restaurant {
-  id          String            @id @default(cuid())
+model Facility {
+  id          String          @id @default(cuid())
   name        String
   address     String
-  longitude   Float             @default(0)
-  latitude    Float             @default(0)
-  description String?           @db.Text
-  cuisine     String?
+  longitude   Float           @default(0)
+  latitude    Float           @default(0)
+  description String?         @db.Text
   phone       String?
   openTime    String
   closeTime   String
-  images      RestaurantImage[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  images      FacilityImage[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
-  // Add these new fields
-  tables       Int @default(1) // Total number of tables
-  maxPartySize Int @default(4) // Maximum party size per table
-
-  reservations Reservation[]
-
-  @@map("restaurant")
+  @@map("facility")
 }
 
-model RestaurantImage {
-  id           String     @id @default(cuid())
-  url          String
-  alt          String?
-  restaurantId String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  isPrimary    Boolean    @default(false)
-  order        Int        @default(0)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+model FacilityImage {
+  id         String   @id @default(cuid())
+  url        String
+  alt        String?
+  facilityId String
+  facility   Facility @relation(fields: [facilityId], references: [id], onDelete: Cascade)
+  isPrimary  Boolean  @default(false)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  @@map("restaurant_image")
-}
-
-model Reservation {
-  id           String     @id @default(cuid())
-  userId       String
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  restaurantId String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  date         DateTime
-  time         String
-  partySize    Int
-  status       String     @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-
-  // Remove or modify the unique constraint if it exists
-  // Instead of a unique constraint, we use application-level validation
-  @@index([userId, restaurantId, date])
-  // Add this new index for time-based collision detection
-  @@index([restaurantId, date, time, status])
-  @@map("reservation")
+  @@map("facility_image")
 }
 
 model ActivityLog {

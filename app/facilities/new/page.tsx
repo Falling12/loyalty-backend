@@ -1,8 +1,8 @@
 "use client"
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
-import { RestaurantForm } from '../../components/forms/restaurant-form'
-import { createRestaurant } from '../../actions/restaurant'
+import { FacilityForm } from '../../components/forms/facility-form'
+import { createFacility } from '../../actions/facility'
 import { redirect } from 'next/navigation'
 
 // Define the FormOutputData type to match the one in restaurant-form.tsx
@@ -21,34 +21,31 @@ type FormOutputData = {
   images: string[];
 }
 
-export default function NewRestaurantPage() {
-  // Create a wrapper function that adapts createRestaurant to match the expected type
+export default function NewFacilityPage() {
   const handleSubmit = async (data: FormOutputData) => {
-    // Convert null string values to empty strings to satisfy the RestaurantFormData type
-    await createRestaurant({
+    await createFacility({
       ...data,
       description: data.description || '',
-      cuisine: data.cuisine || '',
       phone: data.phone || '',
     });
-    redirect('/restaurants');
+    redirect('/facilities');
   };
 
   return (
     <div className="min-h-screen bg-gray-800 p-6">
       <div className="mb-6">
         <Link 
-          href="/restaurants" 
+          href="/facilities" 
           className="inline-flex items-center text-blue-400 hover:text-blue-300 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Restaurants
+          Back to Facilities
         </Link>
       </div>
 
       <div className="max-w-2xl mx-auto bg-gray-900 rounded-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-100 mb-6">New Restaurant</h1>
-        <RestaurantForm onSubmit={handleSubmit} />
+        <h1 className="text-2xl font-bold text-gray-100 mb-6">New Facility</h1>
+        <FacilityForm onSubmit={handleSubmit} />
       </div>
     </div>
   )

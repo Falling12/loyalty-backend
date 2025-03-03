@@ -38,11 +38,12 @@ export const auth = betterAuth({
         after: createAuthMiddleware(async (ctx) => {
             if (ctx.path.startsWith("/sign-in")) {
                 const newSession = ctx.context.newSession
+                console.log(newSession)
                 await logActivity({
                     action: ActivityActions.LOGIN,
                     details: `User logged in`,
                     userId: newSession!.user.id,
-                    ipAddress: ctx.headers?.get("x-forwarded-for") || ctx.headers?.get("x-real-ip") as string
+                    ipAddress: newSession?.session.ipAddress as string
                 });
             }
             if (ctx.path.startsWith("/sign-out")) {
@@ -51,7 +52,7 @@ export const auth = betterAuth({
                     action: ActivityActions.LOGOUT,
                     details: `User logged out`,
                     userId: session!.user.id,
-                    ipAddress: ctx.headers?.get("x-forwarded-for") || ctx.headers?.get("x-real-ip") as string
+                    ipAddress: session?.session.ipAddress as string
                 });
             }
         })

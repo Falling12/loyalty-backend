@@ -1,17 +1,13 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import Link from "next/link";
-import { Users, UtensilsCrossed, Activity } from "lucide-react";
-import { ReservationsChart, RestaurantActivityChart, ReservationStatusChart } from "@/app/components/dashboard/charts";
+import { Users, UtensilsCrossed, Activity, Factory } from "lucide-react";
 import { getDashboardData } from "@/app/actions/dashboard";
 
 export default async function Home() {
-    const [session, dashboardData] = await Promise.all([
-        auth.api.getSession({
-            headers: await headers()
-        }),
-        getDashboardData()
-    ]);
+    const session = await auth.api.getSession({
+        headers: await headers()
+    })
 
     if(!session) {
         return (
@@ -30,18 +26,11 @@ export default async function Home() {
             color: "blue"
         },
         {
-            title: "Restaurants",
-            description: "Manage restaurants and their details",
-            icon: UtensilsCrossed,
-            href: "/restaurants",
+            title: "Facility Management",
+            description: "Manage Facilities",
+            icon: Factory,
+            href: "/facilities",
             color: "green"
-        },
-        {
-            title: "Reservations",
-            description: "Manage restaurant reservations",
-            icon: UtensilsCrossed,
-            href: "/reservations",
-            color: "red"
         },
         {
             title: "Activity Monitor",
@@ -88,18 +77,7 @@ export default async function Home() {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <div className="bg-gray-900 p-6 rounded-lg">
-                    <h2 className="text-lg font-semibold text-gray-100 mb-4">Reservations Timeline</h2>
-                    <ReservationsChart data={dashboardData.reservationsData} />
-                </div>
-                <div className="bg-gray-900 p-6 rounded-lg">
-                    <h2 className="text-lg font-semibold text-gray-100 mb-4">Top Restaurants</h2>
-                    <RestaurantActivityChart data={dashboardData.restaurantData} />
-                </div>
-                <div className="bg-gray-900 p-6 rounded-lg lg:col-span-2">
-                    <h2 className="text-lg font-semibold text-gray-100 mb-4">Reservation Status Distribution</h2>
-                    <ReservationStatusChart data={dashboardData.statusData} />
-                </div>
+
             </div>
         </div>
     );

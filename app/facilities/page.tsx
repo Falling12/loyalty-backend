@@ -4,8 +4,8 @@ import { Plus, MapPin, Clock, ArrowLeft } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import Image from 'next/image'
 
-export default async function RestaurantsPage() {
-    const restaurants = await prisma.restaurant.findMany({
+export default async function FacilitiesPage() {
+    const facilities = await prisma.facility.findMany({
         include: {
             images: {
                 where: { isPrimary: true },
@@ -25,28 +25,28 @@ export default async function RestaurantsPage() {
                         <ArrowLeft className="w-4 h-4 mr-2" />
                         Back to Dashboard
                     </Link>
-                    <h1 className="text-2xl font-bold text-gray-100">Restaurants</h1>
+                    <h1 className="text-2xl font-bold text-gray-100">Facilities</h1>
                 </div>
-                <Link href="/restaurants/new">
+                <Link href="/facilities/new">
                     <Button className='flex items-center gap-2'>
                         <Plus className="w-4 h-4 mr-2" />
-                        Add Restaurant
+                        Add Facility
                     </Button>
                 </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {restaurants.map((restaurant) => (
+                {facilities.map((facility) => (
                     <Link
-                        key={restaurant.id}
-                        href={`/restaurants/${restaurant.id}`}
+                        key={facility.id}
+                        href={`/facilities/${facility.id}`}
                         className="bg-gray-900 rounded-lg overflow-hidden hover:ring-2 hover:ring-blue-500 transition-all"
                     >
                         <div className="h-48 bg-gray-800 relative">
-                            {restaurant.images[0] ? (
+                            {facility.images[0] ? (
                                 <Image
-                                    src={restaurant.images[0].url}
-                                    alt={restaurant.images[0].alt || restaurant.name}
+                                    src={facility.images[0].url}
+                                    alt={facility.images[0].alt || facility.name}
                                     className="w-full h-full object-cover"
                                     width={500}
                                     height={200}
@@ -59,16 +59,16 @@ export default async function RestaurantsPage() {
                         </div>
                         <div className="p-4">
                             <h2 className="text-xl font-semibold text-gray-100 mb-2">
-                                {restaurant.name}
+                                {facility.name}
                             </h2>
                             <div className="space-y-2 text-gray-400">
                                 <p className="flex items-center">
                                     <MapPin className="w-4 h-4 mr-2" />
-                                    {restaurant.address}
+                                    {facility.address}
                                 </p>
                                 <p className="flex items-center">
                                     <Clock className="w-4 h-4 mr-2" />
-                                    {restaurant.openTime} - {restaurant.closeTime}
+                                    {facility.openTime} - {facility.closeTime}
                                 </p>
                             </div>
                         </div>
