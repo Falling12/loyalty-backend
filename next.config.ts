@@ -23,16 +23,6 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  
-  // Configure so Next.js doesn't attempt to route /uploads requests
-  async rewrites() {
-    return [
-      {
-        source: '/uploads/:path*',
-        destination: '/uploads/:path*',
-      },
-    ];
-  },
 };
 
 export default nextConfig;
