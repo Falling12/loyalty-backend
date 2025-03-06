@@ -46,7 +46,7 @@ export default async function RestaurantDetailPage({ params }: { params: Promise
         </Link>
         
         <Link
-          href={`/facilitys/${id}/edit`}
+          href={`/facilities/${id}/edit`}
           className="inline-flex items-center text-green-400 hover:text-green-300 transition-colors"
         >
           <Edit className="w-4 h-4 mr-2" />

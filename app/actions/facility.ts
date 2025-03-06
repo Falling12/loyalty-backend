@@ -17,6 +17,7 @@ export interface FacilityFormData {
 }
 
 export async function createFacility(data: FacilityFormData) {
+  console.log('Creating facility with data:', data)
   const facility = await prisma.facility.create({
     data: {
       name: data.name,

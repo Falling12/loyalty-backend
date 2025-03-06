@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { UploadDropzone } from '@/lib/uploadthing'
 import Image from 'next/image'
 import { X } from 'lucide-react'
@@ -9,14 +9,23 @@ interface ImageUploadProps {
   maxImages?: number;
   initialImages?: string[];
   onChange: (urls: string[]) => void;
+  onUploadStatusChange?: (isUploading: boolean) => void; // Add this prop
 }
 
 export function ImageUpload({ 
   maxImages = 1,
   initialImages = [],
-  onChange
+  onChange,
+  onUploadStatusChange
 }: ImageUploadProps) {
   const [images, setImages] = useState<string[]>(initialImages)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  // Use effect to propagate upload status changes to parent
+  useEffect(() => {
+    onUploadStatusChange?.(isUploading);
+  }, [isUploading, onUploadStatusChange]);
 
   const onDelete = (url: string) => {
     const filteredImages = images.filter((image) => image !== url)
@@ -37,6 +46,8 @@ export function ImageUpload({
       setImages(newImages)
       onChange(newImages)
     }
+    setIsUploading(false)
+    setUploadError(null)
   }
 
   return (
@@ -64,18 +75,32 @@ export function ImageUpload({
       </div>
 
       {images.length < maxImages && (
-        <UploadDropzone
-          endpoint="imageUploader"
-          onClientUploadComplete={(res) => {
-            if (res) {
-              onUploadComplete(res)
-            }
-          }}
-          onUploadError={(error: Error) => {
-            console.error(error)
-          }}
-          className="ut-label:text-gray-200 ut-button:bg-blue-600 ut-button:hover:bg-blue-700 ut-allowed-content:text-gray-300 border-dashed border-2 border-gray-400 rounded-lg p-4 ut-upload-icon:text-gray-400"
-        />
+        <>
+          <UploadDropzone
+            endpoint="imageUploader"
+            onUploadBegin={() => {
+              setIsUploading(true)
+              setUploadError(null)
+            }}
+            onClientUploadComplete={(res) => {
+              if (res) {
+                onUploadComplete(res)
+              }
+            }}
+            onUploadError={(error: Error) => {
+              console.error(error)
+              setUploadError(error.message)
+              setIsUploading(false)
+            }}
+            className="ut-label:text-gray-200 ut-button:bg-blue-600 ut-button:hover:bg-blue-700 ut-allowed-content:text-gray-300 border-dashed border-2 border-gray-400 rounded-lg p-4 ut-upload-icon:text-gray-400"
+          />
+          {isUploading && (
+            <p className="text-sm text-blue-400">Uploading images...</p>
+          )}
+          {uploadError && (
+            <p className="text-sm text-red-500">Upload error: {uploadError}</p>
+          )}
+        </>
       )}
     </div>
   )

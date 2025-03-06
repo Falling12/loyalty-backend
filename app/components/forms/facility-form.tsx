@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { Button } from '../ui/button'
 import { ImageUpload } from '../facilities/image-upload'
 import { Facility, FacilityImage } from '@prisma/client'
@@ -12,12 +12,9 @@ const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   address: z.string().min(5, 'Address must be at least 5 characters'),
   description: z.string().nullable(),
-  cuisine: z.string().nullable(),
   phone: z.string().nullable(),
   openTime: z.string(),
   closeTime: z.string(),
-  tables: z.number().min(1, 'Must have at least 1 table'),
-  maxPartySize: z.number().min(1, 'Maximum party size must be at least 1'),
   latitude: z.string().refine(val => !val || !isNaN(parseFloat(val)), {
     message: "Latitude must be a valid number"
   }).transform(val => val ? parseFloat(val) : null),
@@ -44,6 +41,8 @@ type FacilityFormProps = {
 export function FacilityForm({ facility, onSubmit }: FacilityFormProps) {
   const [images, setImages] = useState<string[]>(facility?.images?.map(img => img.url) || [])
   const [error, setError] = useState('')
+  const [isUploadingImages, setIsUploadingImages] = useState(false)
+  
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormInputData>({
     resolver: zodResolver(formSchema),
     defaultValues: facility ? {
@@ -56,29 +55,54 @@ export function FacilityForm({ facility, onSubmit }: FacilityFormProps) {
       latitude: facility.latitude ? String(facility.latitude) : '',
       longitude: facility.longitude ? String(facility.longitude) : '',
     } : {
-      tables: 1,
-      maxPartySize: 4,
+      name: '',
+      address: '',
+      description: '',
+      phone: '',
+      openTime: '09:00',
+      closeTime: '22:00',
       latitude: '',
       longitude: '',
     }
   })
 
   const handleFormSubmit = async (data: FormInputData) => {
+    console.log("Form submission attempted", { data, isUploadingImages });
+    setError('');
+    
     try {
+      if (isUploadingImages) {
+        setError('Please wait for images to finish uploading');
+        return;
+      }
+
       // Parse the schema to transform string inputs to the proper types
       const parsedData = schema.parse(data);
+      console.log("Data parsed successfully", parsedData);
 
       // Include images in the submission
+      console.log("Submitting with images:", images);
       await onSubmit({
         ...parsedData,
         images
       });
+      console.log("Submission completed");
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_error) {
-      setError('Failed to save restaurant');
+    } catch (error) {
+      console.error("Form submission error:", error);
+      setError('Failed to save facility');
     }
   }
+
+  const handleImagesChange = useCallback((newImages: string[]) => {
+    console.log("Images changed:", newImages);
+    setImages(newImages);
+  }, []);
+
+  const handleUploadStatusChange = useCallback((status: boolean) => {
+    console.log("Upload status changed:", status);
+    setIsUploadingImages(status);
+  }, []);
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
@@ -192,17 +216,25 @@ export function FacilityForm({ facility, onSubmit }: FacilityFormProps) {
         <ImageUpload
           maxImages={5}
           initialImages={images}
-          onChange={setImages} // Add onChange handler
+          onChange={handleImagesChange}
+          onUploadStatusChange={handleUploadStatusChange}
         />
+        <p className="text-sm text-gray-400 mt-1">Upload up to 5 images of your facility (4MB max per image)</p>
       </div>
 
       {error && (
         <p className="text-sm text-red-500">{error}</p>
       )}
-
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? 'Saving...' : facility ? 'Update Facility' : 'Create Facility'}
-      </Button>
+      
+      <div className="mt-6">
+        <Button 
+          type="submit" 
+          className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md" 
+          disabled={isSubmitting || isUploadingImages}
+        >
+          {isSubmitting ? 'Saving...' : facility ? 'Update Facility' : 'Create Facility'}
+        </Button>
+      </div>
     </form>
   )
 }
