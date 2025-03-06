@@ -16,7 +16,7 @@ type FormData = z.infer<typeof schema>;
 interface SettingsFormProps {
   initialAppIconUrl: string;
   initialBackgroundImageUrl: string;
-  onSubmit: (data: FormData) => Promise<any>;
+  onSubmit: (data: FormData) => Promise<unknown>;
 }
 
 export function SettingsForm({ initialAppIconUrl, initialBackgroundImageUrl, onSubmit }: SettingsFormProps) {
