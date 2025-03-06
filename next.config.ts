@@ -20,6 +20,12 @@ const nextConfig: NextConfig = {
         hostname: 'backend.scsanad.hu',
         port: '',
         pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'utfs.io',
+        port: '',
+        pathname: '/f/**',
       }
     ],
   },

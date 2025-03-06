@@ -1,124 +1,82 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
-import { Upload, X } from 'lucide-react'
+import { useState } from 'react'
+import { UploadDropzone } from '@/lib/uploadthing'
 import Image from 'next/image'
+import { X } from 'lucide-react'
 
 interface ImageUploadProps {
-  maxImages: number
-  initialImages?: string[]
-  onChange?: (urls: string[]) => void
+  maxImages?: number;
+  initialImages?: string[];
+  onChange: (urls: string[]) => void;
 }
 
-export function ImageUpload({ maxImages, initialImages = [], onChange }: ImageUploadProps) {
-  const [imageUrls, setImageUrls] = useState<string[]>(initialImages)
+export function ImageUpload({ 
+  maxImages = 1,
+  initialImages = [],
+  onChange
+}: ImageUploadProps) {
+  const [images, setImages] = useState<string[]>(initialImages)
 
-  const handleUploadComplete = (url: string) => {
-    const newUrls = [...imageUrls, url]
-    setImageUrls(newUrls)
-    onChange?.(newUrls)
+  const onDelete = (url: string) => {
+    const filteredImages = images.filter((image) => image !== url)
+    setImages(filteredImages)
+    onChange(filteredImages)
   }
 
-  const handleRemoveImage = (urlToRemove: string) => {
-    const newUrls = imageUrls.filter(url => url !== urlToRemove)
-    setImageUrls(newUrls)
-    onChange?.(newUrls)
-  }
-
-  const [uploading, setUploading] = useState(false)
-  const initialized = useRef(false)
-
-  useEffect(() => {
-    if (!initialized.current && initialImages.length > 0) {
-      setImageUrls(initialImages)
-      initialized.current = true
-    }
-  }, [initialImages])
-
-  const uploadFile = async (file: File) => {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    const response = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    })
-
-    if (!response.ok) {
-      throw new Error('Upload failed')
-    }
-
-    const data = await response.json()
-    return data.url
-  }
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files) return
-
-    setUploading(true)
-    try {
-      await Promise.all(
-        Array.from(files).map(async (file) => {
-          const url = await uploadFile(file)
-          handleUploadComplete(url)
-          return { url, file }
-        })
-      )
-    } catch (error) {
-      console.error('Upload failed:', error)
-      // You might want to add error handling UI here
-    } finally {
-      setUploading(false)
+  const onUploadComplete = (res: { url: string }[]) => {
+    const urls = res.map((image) => image.url)
+    
+    // If maxImages is 1, replace the existing image
+    if (maxImages === 1) {
+      setImages(urls)
+      onChange(urls)
+    } else {
+      // Otherwise add to the array up to maxImages
+      const newImages = [...images, ...urls].slice(0, maxImages)
+      setImages(newImages)
+      onChange(newImages)
     }
   }
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {imageUrls.map((url, index) => (
-          <div key={index} className="relative aspect-square">
-            <Image
-              src={url}
-              alt={`Upload preview ${index + 1}`}
-              className="w-full h-full object-cover rounded-lg"
-              width={200}
-              height={200}
-            />
-            <button
-              type="button"
-              onClick={() => handleRemoveImage(url)}
-              className="absolute top-2 right-2 p-1 bg-red-500 rounded-full hover:bg-red-600"
-            >
-              <X className="w-4 h-4 text-white" />
-            </button>
-            <input
-              type="hidden"
-              name={`images`}
-              value={url}
+    <div className="mb-4 space-y-4">
+      <div className="flex flex-wrap gap-4">
+        {images.map((url) => (
+          <div key={url} className="relative w-24 h-24 rounded-md overflow-hidden">
+            <div className="absolute top-1 right-1 z-10">
+              <button
+                type="button"
+                onClick={() => onDelete(url)}
+                className="p-1 bg-red-500 rounded-full text-white hover:bg-red-600 transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <Image 
+              src={url} 
+              alt="Uploaded image" 
+              fill 
+              className="object-cover"
             />
           </div>
         ))}
-        {imageUrls.length < maxImages && (
-          <label className={`border-2 border-dashed border-gray-600 rounded-lg aspect-square flex flex-col items-center justify-center cursor-pointer hover:border-gray-500 transition-colors ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-            <Upload className="w-8 h-8 text-gray-400" />
-            <span className="text-sm text-gray-400 mt-2">
-              {uploading ? 'Uploading...' : 'Add Image'}
-            </span>
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              disabled={uploading}
-            />
-          </label>
-        )}
       </div>
-      <p className="text-sm text-gray-400">
-        Upload up to {maxImages} images. First image will be the primary image.
-      </p>
+
+      {images.length < maxImages && (
+        <UploadDropzone
+          endpoint="imageUploader"
+          onClientUploadComplete={(res) => {
+            if (res) {
+              onUploadComplete(res)
+            }
+          }}
+          onUploadError={(error: Error) => {
+            console.error(error)
+          }}
+          className="ut-label:text-gray-200 ut-button:bg-blue-600 ut-button:hover:bg-blue-700 ut-allowed-content:text-gray-300 border-dashed border-2 border-gray-400 rounded-lg p-4 ut-upload-icon:text-gray-400"
+        />
+      )}
     </div>
   )
 }

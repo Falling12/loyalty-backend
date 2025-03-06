@@ -1,7 +1,11 @@
+"use server"
+
 import { prisma } from "@/lib/auth";
 
-export async function updateSettings(appIconUrl: string, backgroundImageUrl: string) {
+export async function updateSettings(formData: { appIconUrl: string, backgroundImageUrl: string }) {
   try {
+    const { appIconUrl, backgroundImageUrl } = formData;
+    
     const settings = await prisma.settings.upsert({
       where: { id: 1 },
       update: {

@@ -11,10 +11,12 @@ const schema = z.object({
   backgroundImageUrl: z.string(),
 });
 
+type FormData = z.infer<typeof schema>;
+
 interface SettingsFormProps {
   initialAppIconUrl: string;
   initialBackgroundImageUrl: string;
-  onSubmit: ({appIconUrl, backgroundImageUrl}: { appIconUrl: string, backgroundImageUrl: string}) => void;
+  onSubmit: (data: FormData) => Promise<any>;
 }
 
 export function SettingsForm({ initialAppIconUrl, initialBackgroundImageUrl, onSubmit }: SettingsFormProps) {
@@ -22,7 +24,7 @@ export function SettingsForm({ initialAppIconUrl, initialBackgroundImageUrl, onS
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const { handleSubmit, setValue, formState: { errors } } = useForm({
+  const { handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       appIconUrl: initialAppIconUrl,
@@ -30,17 +32,17 @@ export function SettingsForm({ initialAppIconUrl, initialBackgroundImageUrl, onS
     },
   });
 
-  const handleFormSubmit = async ({ appIconUrl, backgroundImageUrl }: { appIconUrl: string; backgroundImageUrl: string }) => {
+  const handleFormSubmit = async (data: FormData) => {
     setLoading(true);
     setError('');
     setSuccess('');
 
     try {
-      onSubmit({appIconUrl, backgroundImageUrl});
+      await onSubmit(data);
       setSuccess('Settings updated successfully');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_error) {
+    } catch (err) {
       setError('Failed to update settings');
+      console.error(err);
     } finally {
       setLoading(false);
     }
