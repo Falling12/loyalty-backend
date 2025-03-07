@@ -165,3 +165,24 @@ model Settings {
   appIconUrl        String
   backgroundImageUrl String
 }
+
+model Event {
+  id          String       @id @default(cuid())
+  name        String
+  description String?      @db.Text
+  date        DateTime
+  categoryId  String
+  category    EventCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("event")
+}
+
+model EventCategory {
+  id        String   @id @default(cuid())
+  name      String
+  events    Event[]  @relation("EventCategoryToEvent")
+
+  @@map("event_category")
+}
