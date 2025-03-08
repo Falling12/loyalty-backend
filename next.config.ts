@@ -7,7 +7,6 @@ const nextConfig: NextConfig = {
   
   // Add images configuration with production domain
   images: {
-    domains: ['localhost', 'backend.scsanad.hu'],
     remotePatterns: [
       {
         protocol: 'http',

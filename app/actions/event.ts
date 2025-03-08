@@ -5,9 +5,10 @@ import { revalidatePath } from 'next/cache'
 
 export interface EventFormData {
   name: string
-  description: string
+  description: string 
   date: Date
-  categoryId: string
+  categoryIds: string[]
+  images?: string[] // Add images field
 }
 
 export async function createEvent(data: EventFormData) {
@@ -16,7 +17,16 @@ export async function createEvent(data: EventFormData) {
       name: data.name,
       description: data.description,
       date: data.date,
-      eventCategoryId: data.categoryId,
+      categories: {
+        create: data.categoryIds.map((categoryId) => ({
+          categoryId,
+        })),
+      },
+      images: data.images ? {
+        create: data.images.map(url => ({
+          url,
+        })),
+      } : undefined,
     },
   })
 
@@ -25,13 +35,30 @@ export async function createEvent(data: EventFormData) {
 }
 
 export async function updateEvent(id: string, data: EventFormData) {
+  // Delete existing images if new ones are provided
+  if (data.images) {
+    await prisma.eventImage.deleteMany({
+      where: { eventId: id }
+    });
+  }
+
   const event = await prisma.event.update({
     where: { id },
     data: {
       name: data.name,
       description: data.description,
       date: data.date,
-      eventCategoryId: data.categoryId,
+      categories: {
+        deleteMany: {},
+        create: data.categoryIds.map((categoryId) => ({
+          categoryId,
+        })),
+      },
+      images: data.images ? {
+        create: data.images.map(url => ({
+          url,
+        })),
+      } : undefined,
     },
   })
 
@@ -80,4 +107,33 @@ export async function deleteEventCategory(id: string) {
   })
 
   revalidatePath('/event-categories')
+}
+
+export async function getEvent(id: string) {
+  const event = await prisma.event.findUnique({
+    where: { id },
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+      images: true,
+    },
+  })
+  return event
+}
+
+export async function getEvents() {
+  const events = await prisma.event.findMany({
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+      images: true,
+    },
+  })
+  return events
 }

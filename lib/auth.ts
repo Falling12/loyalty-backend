@@ -14,7 +14,7 @@ export const auth = betterAuth({
         enabled: true,
     },
     plugins: [admin(), openAPI(), bearer(), expo()],
-    trustedOrigins: ["myapp://"],
+    trustedOrigins: ["myapp://", "https://backend.scsanad.hu"],
     user: {
         additionalFields: {
             displayName: {
