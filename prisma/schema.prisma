@@ -167,22 +167,39 @@ model Settings {
 }
 
 model Event {
-  id              String         @id @default(cuid())
-  name            String
-  description     String?        @db.Text
-  date            DateTime
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  EventCategory   EventCategory? @relation(fields: [eventCategoryId], references: [id])
-  eventCategoryId String?
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // Remove the single category relationship
+  // EventCategory   EventCategory? @relation(fields: [eventCategoryId], references: [id])
+  // eventCategoryId String?
+
+  // Add the many-to-many relationship
+  categories EventCategoriesOnEvents[]
 
   @@map("event")
 }
 
 model EventCategory {
-  id    String  @id @default(cuid())
-  name  String
-  Event Event[]
+  id     String                    @id @default(cuid())
+  name   String
+  // Update the relationship
+  events EventCategoriesOnEvents[]
 
   @@map("event_category")
+}
+
+// Add a join table for the many-to-many relationship
+model EventCategoriesOnEvents {
+  event      Event         @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId    String
+  category   EventCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  assignedAt DateTime      @default(now())
+
+  @@id([eventId, categoryId])
+  @@map("event_categories_on_events")
 }

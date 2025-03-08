@@ -5,9 +5,9 @@ import { revalidatePath } from 'next/cache'
 
 export interface EventFormData {
   name: string
-  description: string
+  description: string 
   date: Date
-  categoryId: string
+  categoryIds: string[]
 }
 
 export async function createEvent(data: EventFormData) {
@@ -16,7 +16,11 @@ export async function createEvent(data: EventFormData) {
       name: data.name,
       description: data.description,
       date: data.date,
-      eventCategoryId: data.categoryId,
+      categories: {
+        create: data.categoryIds.map((categoryId) => ({
+          categoryId,
+        })),
+      },
     },
   })
 
@@ -31,7 +35,12 @@ export async function updateEvent(id: string, data: EventFormData) {
       name: data.name,
       description: data.description,
       date: data.date,
-      eventCategoryId: data.categoryId,
+      categories: {
+        deleteMany: {},
+        create: data.categoryIds.map((categoryId) => ({
+          categoryId,
+        })),
+      },
     },
   })
 
@@ -80,4 +89,31 @@ export async function deleteEventCategory(id: string) {
   })
 
   revalidatePath('/event-categories')
+}
+
+export async function getEvent(id: string) {
+  const event = await prisma.event.findUnique({
+    where: { id },
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+    },
+  })
+  return event
+}
+
+export async function getEvents() {
+  const events = await prisma.event.findMany({
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+    },
+  })
+  return events
 }

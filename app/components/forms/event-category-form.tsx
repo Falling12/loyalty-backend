@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useState } from 'react'
 import { EventCategoryFormData } from '@/app/actions/event'
+import { EventCategory } from '@prisma/client'
 
 const schema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters')
@@ -12,17 +13,28 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
-export function EventCategoryForm({ onSubmit }: { onSubmit: (data: EventCategoryFormData) => void }) {
+type EventCategoryFormProps = {
+  eventCategory?: EventCategory
+  onSubmit: (data: EventCategoryFormData) => Promise<void>
+}
+
+export function EventCategoryForm({ onSubmit, eventCategory }: EventCategoryFormProps) {
   const [error, setError] = useState('')
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
-    resolver: zodResolver(schema)
+    resolver: zodResolver(schema),
+    defaultValues: eventCategory ? {
+      name: eventCategory.name,
+    } : {
+      name: '',
+    }
   })
 
   const handleFormSubmit = async (data: FormData) => {
     setError('')
     try {
       await onSubmit(data)
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       setError('Failed to save event category')
     }
   }

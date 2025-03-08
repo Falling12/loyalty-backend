@@ -8,9 +8,14 @@ export default async function EventCategoriesPage() {
     <div className="min-h-screen bg-gray-800 p-6">
       <div className="max-w-2xl mx-auto bg-gray-900 rounded-lg p-8">
         <h1 className="text-2xl font-bold text-gray-100 mb-6">Event Categories</h1>
-        <Link href="/event-categories/new" className="text-blue-400 hover:text-blue-300 transition-colors">
-          Create New Event Category
-        </Link>
+        <div className="flex space-x-4 mb-6">
+          <Link href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Back to Dashboard
+          </Link>
+          <Link href="/event-categories/new" className="text-blue-400 hover:text-blue-300 transition-colors">
+            Create New Event Category
+          </Link>
+        </div>
         <div className="mt-6 space-y-4">
           {categories.map((category) => (
             <div key={category.id} className="bg-gray-800 p-4 rounded-lg">
