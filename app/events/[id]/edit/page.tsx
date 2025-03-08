@@ -2,17 +2,18 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/router'
-import { updateEvent } from '@/app/actions/event'
+import { EventFormData, updateEvent } from '@/app/actions/event'
 import { EventForm } from '@/app/components/forms/event-form'
 
-export default function EditEventPage({ params }) {
+export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
+  const id = (await params).id
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (data: EventFormData) => {
     setError(null)
     try {
-      await updateEvent(params.id, data)
+      await updateEvent(id, data)
       router.push('/events')
     } catch (error) {
       setError('Failed to update event')

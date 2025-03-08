@@ -161,28 +161,28 @@ model ActivityLog {
 }
 
 model Settings {
-  id                Int      @id @default(1)
-  appIconUrl        String
+  id                 Int    @id @default(1)
+  appIconUrl         String
   backgroundImageUrl String
 }
 
 model Event {
-  id          String       @id @default(cuid())
-  name        String
-  description String?      @db.Text
-  date        DateTime
-  categoryId  String
-  category    EventCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id              String         @id @default(cuid())
+  name            String
+  description     String?        @db.Text
+  date            DateTime
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  EventCategory   EventCategory? @relation(fields: [eventCategoryId], references: [id])
+  eventCategoryId String?
 
   @@map("event")
 }
 
 model EventCategory {
-  id        String   @id @default(cuid())
-  name      String
-  events    Event[]  @relation("EventCategoryToEvent")
+  id    String  @id @default(cuid())
+  name  String
+  Event Event[]
 
   @@map("event_category")
 }

@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from 'react'
-import { useRouter } from 'next/router'
-import { createEvent } from '@/app/actions/event'
+import { useRouter } from 'next/navigation'
+import { createEvent, EventFormData } from '@/app/actions/event'
 import { EventForm } from '@/app/components/forms/event-form'
 
 export default function NewEventPage() {

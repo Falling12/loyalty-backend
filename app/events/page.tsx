@@ -4,7 +4,7 @@ import { prisma } from '@/lib/auth'
 export default async function EventsPage() {
   const events = await prisma.event.findMany({
     include: {
-      category: true,
+      EventCategory: true
     },
   })
 
@@ -21,7 +21,7 @@ export default async function EventsPage() {
               <h2 className="text-xl font-semibold text-gray-100">{event.name}</h2>
               <p className="text-gray-400">{event.description}</p>
               <p className="text-gray-400">{new Date(event.date).toLocaleDateString()}</p>
-              <p className="text-gray-400">Category: {event.category.name}</p>
+              <p className="text-gray-400">Category: {event.EventCategory!.name}</p>
               <Link href={`/events/${event.id}/edit`} className="text-blue-400 hover:text-blue-300 transition-colors">
                 Edit
               </Link>

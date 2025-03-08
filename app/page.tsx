@@ -35,6 +35,20 @@ export default async function Home() {
             color: "green"
         },
         {
+            title: "Event Management",
+            description: "Manage events and categories",
+            icon: Factory,
+            href: "/events",
+            color: "red"
+        },
+        {
+            title: "Event Categories",
+            description: "Manage event categories",
+            icon: Factory,
+            href: "/event-categories",
+            color: "yellow"
+        },
+        {
             title: "Activity Monitor",
             description: "View system activity and logs",
             icon: Activity,

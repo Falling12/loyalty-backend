@@ -16,7 +16,7 @@ export async function createEvent(data: EventFormData) {
       name: data.name,
       description: data.description,
       date: data.date,
-      categoryId: data.categoryId,
+      eventCategoryId: data.categoryId,
     },
   })
 
@@ -31,7 +31,7 @@ export async function updateEvent(id: string, data: EventFormData) {
       name: data.name,
       description: data.description,
       date: data.date,
-      categoryId: data.categoryId,
+      eventCategoryId: data.categoryId,
     },
   })
 
