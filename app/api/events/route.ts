@@ -9,6 +9,7 @@ export async function GET() {
             category: true,
           },
         },
+        images: true,
       },
     })
   
