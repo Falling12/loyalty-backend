@@ -74,7 +74,8 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
         date: new Date(data.date),
         categoryIds: data.categoryIds
       })
-    } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_error) {
       setError('Failed to save event')
     }
   }
