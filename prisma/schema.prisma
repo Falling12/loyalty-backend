@@ -167,18 +167,14 @@ model Settings {
 }
 
 model Event {
-  id          String   @id @default(cuid())
+  id          String                    @id @default(cuid())
   name        String
-  description String?  @db.Text
+  description String?                   @db.Text
   date        DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  // Remove the single category relationship
-  // EventCategory   EventCategory? @relation(fields: [eventCategoryId], references: [id])
-  // eventCategoryId String?
-
-  // Add the many-to-many relationship
-  categories EventCategoriesOnEvents[]
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+  categories  EventCategoriesOnEvents[]
+  images      EventImage[] // Add this relationship
 
   @@map("event")
 }
@@ -186,7 +182,6 @@ model Event {
 model EventCategory {
   id     String                    @id @default(cuid())
   name   String
-  // Update the relationship
   events EventCategoriesOnEvents[]
 
   @@map("event_category")
@@ -202,4 +197,19 @@ model EventCategoriesOnEvents {
 
   @@id([eventId, categoryId])
   @@map("event_categories_on_events")
+}
+
+// Add this new model
+model EventImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  isPrimary Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("event_image")
 }

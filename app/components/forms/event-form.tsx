@@ -3,9 +3,10 @@
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { EventFormData } from '@/app/actions/event'
-import { Event } from '@prisma/client'
+import { Event, EventImage } from '@prisma/client'
+import { ImageUpload } from '../facilities/image-upload'
 
 // Update the schema to use array of category IDs
 const schema = z.object({
@@ -20,13 +21,18 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 type EventFormProps = {
-  event?: Event & { categories?: { categoryId: string }[] }
+  event?: Event & { 
+    categories?: { categoryId: string }[],
+    images?: EventImage[]
+  }
   onSubmit: (data: EventFormData) => Promise<void>
 }
 
 export function EventForm({ event, onSubmit }: EventFormProps) {
   const [error, setError] = useState('')
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([])
+  const [images, setImages] = useState<string[]>(event?.images?.map(img => img.url) || [])
+  const [isUploadingImages, setIsUploadingImages] = useState(false)
   
   // Format a date as YYYY-MM-DD for the input
   const formatDateForInput = (date: Date) => {
@@ -65,14 +71,28 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
     fetchCategories()
   }, [])
 
+  const handleImagesChange = useCallback((newImages: string[]) => {
+    setImages(newImages);
+  }, []);
+
+  const handleUploadStatusChange = useCallback((status: boolean) => {
+    setIsUploadingImages(status);
+  }, []);
+
   const handleFormSubmit = async (data: FormData) => {
     setError('')
     try {
+      if (isUploadingImages) {
+        setError('Please wait for images to finish uploading');
+        return;
+      }
+      
       onSubmit({
         name: data.name,
         description: data.description!,
         date: new Date(data.date),
-        categoryIds: data.categoryIds
+        categoryIds: data.categoryIds,
+        images
       })
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_error) {
@@ -154,13 +174,24 @@ export function EventForm({ event, onSubmit }: EventFormProps) {
         )}
       </div>
 
+      <div>
+        <label className="block text-sm font-medium text-gray-200 mb-1">Images</label>
+        <ImageUpload
+          maxImages={5}
+          initialImages={images}
+          onChange={handleImagesChange}
+          onUploadStatusChange={handleUploadStatusChange}
+        />
+        <p className="text-sm text-gray-400 mt-1">Upload up to 5 images for this event (4MB max per image)</p>
+      </div>
+
       {error && (
         <p className="text-sm text-red-500">{error}</p>
       )}
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isSubmitting || isUploadingImages}
         className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
       >
         {isSubmitting ? 'Saving...' : 'Save Event'}

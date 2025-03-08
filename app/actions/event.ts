@@ -8,6 +8,7 @@ export interface EventFormData {
   description: string 
   date: Date
   categoryIds: string[]
+  images?: string[] // Add images field
 }
 
 export async function createEvent(data: EventFormData) {
@@ -21,6 +22,11 @@ export async function createEvent(data: EventFormData) {
           categoryId,
         })),
       },
+      images: data.images ? {
+        create: data.images.map(url => ({
+          url,
+        })),
+      } : undefined,
     },
   })
 
@@ -29,6 +35,13 @@ export async function createEvent(data: EventFormData) {
 }
 
 export async function updateEvent(id: string, data: EventFormData) {
+  // Delete existing images if new ones are provided
+  if (data.images) {
+    await prisma.eventImage.deleteMany({
+      where: { eventId: id }
+    });
+  }
+
   const event = await prisma.event.update({
     where: { id },
     data: {
@@ -41,6 +54,11 @@ export async function updateEvent(id: string, data: EventFormData) {
           categoryId,
         })),
       },
+      images: data.images ? {
+        create: data.images.map(url => ({
+          url,
+        })),
+      } : undefined,
     },
   })
 
@@ -100,6 +118,7 @@ export async function getEvent(id: string) {
           category: true,
         },
       },
+      images: true,
     },
   })
   return event
@@ -113,6 +132,7 @@ export async function getEvents() {
           category: true,
         },
       },
+      images: true,
     },
   })
   return events
